@@ -8,10 +8,13 @@
 
 import UIKit
 
-// This class should remind you of lab 3. That's probably because it's exactly the same!
 class ImagePickerController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate {
     
     @IBOutlet var imageCollectionView: UICollectionView!
+    @IBAction func unwindToImagePickerController(segue:UIStoryboardSegue) { }
+    
+    var selectedImage: UIImage!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         imageCollectionView.collectionViewLayout = ImageFlowLayout()
@@ -21,14 +24,17 @@ class ImagePickerController: UIViewController, UICollectionViewDataSource, UICol
         super.didReceiveMemoryWarning()
     }
     
-
     func selectImage(_ image: UIImage) {
-        //The image being selected is passed in as "image".
+        selectedImage = image
+        performSegue(withIdentifier: "goToFeeds", sender: self)
     }
-    
-    
-    
-    //DON'T MODIFY CODE HERE AND BELOW!
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let viewControllerToSendImageTo = segue.destination as? FeedViewController {
+            viewControllerToSendImageTo.imageFromImagePickerController = selectedImage!
+        }
+    }
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return allImages.count
     }
@@ -42,10 +48,15 @@ class ImagePickerController: UIViewController, UICollectionViewDataSource, UICol
         cell.image.image = allImages[indexPath.row]
         return cell
     }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if let selectedCell = collectionView.cellForItem(at: indexPath) as? ImageCollectionViewCell {
             selectImage(selectedCell.image.image!)
         }
         
+    }
+    
+    @IBAction func goBackToOneButtonTapped(_ sender: Any) {
+        performSegue(withIdentifier: "unwindtoImagePick", sender: self)
     }
 }
